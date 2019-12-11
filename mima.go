@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"flag"
 
 	"github.com/gorilla/mux"
 	"github.com/ickerio/mima/providors"
@@ -11,12 +12,14 @@ import (
 
 var prov VpsProvidor
 
+var apiKey = flag.Int("apikey", "", "API key for either Vultr or DigitalOcean")
+
 type Options struct {
 	label string
 }
 
 func main() {
-	prov = NewProvidor(Vultr, "ABF6EFRVU7UZCUBHTJMCKUL4JXCCC3GVSCSQ")
+	prov = NewProvidor(Vultr, apiKey)
 
 	r := mux.NewRouter()
 
