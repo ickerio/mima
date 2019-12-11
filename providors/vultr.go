@@ -9,8 +9,9 @@ import (
 
 // VultrProvidor Client for Vultr VPS
 type VultrProvidor struct {
-	apiKey string
-	client *govultr.Client
+	apiKey       string
+	client       *govultr.Client
+	instanceName string
 }
 
 // ListServers Retrieves all hosted VPS servers

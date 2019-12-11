@@ -1,0 +1,10 @@
+vultr_key: API_KEY_HERE
+do_key: API_KEY_HERE
+
+servers:
+  - name: minecraft_survival
+    providor: Vultr
+    plan: 4GB
+  - name: minecraft_creative
+    providor: DigitalOcean
+    plan: 2GB

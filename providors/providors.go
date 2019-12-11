@@ -35,14 +35,14 @@ type Server struct {
 }
 
 // NewProvidor Instanciates the desired VPS client
-func NewProvidor(providor int, apiKey string) VpsProvidor {
+func NewProvidor(providor int, apiKey string, instanceName string) VpsProvidor {
 	switch providor {
 	case Vultr:
 		v := govultr.NewClient(nil, apiKey)
-		return VultrProvidor{apiKey: apiKey, client: v}
+		return VultrProvidor{apiKey: apiKey, client: v, instanceName: instanceName}
 	case DigitalOcean:
 		v := govultr.NewClient(nil, apiKey)
-		return VultrProvidor{apiKey: apiKey, client: v}
+		return VultrProvidor{apiKey: apiKey, client: v, instanceName: instanceName}
 	default:
 		panic("No such providor")
 	}
