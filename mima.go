@@ -1,35 +1,46 @@
 package main
 
 import (
-	"net/http"
 	"flag"
+	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/ickerio/mima/providors"
 	"github.com/ickerio/mima/api"
-	"github.com/ickerio/mima/util"
+	"github.com/ickerio/mima/providors"
 )
 
-var prov VpsProvidor
-
-var apiKey = flag.Int("apikey", "", "API key for either Vultr or DigitalOcean")
-
+/*
 type Options struct {
 	label string
 }
+*/
+
+func parseFlags() (string, string) {
+	var apiKey = flag.String("key", "", "API key for either Vultr or DigitalOcean")
+	var port = flag.String("port", "8080", "Port to host web server on")
+	flag.Parse()
+
+	if *apiKey == "" {
+		flag.PrintDefaults()
+		panic("No apikey set!")
+	}
+
+	return *apiKey, *port
+}
 
 func main() {
-	prov = NewProvidor(Vultr, apiKey)
+	apiKey, port := parseFlags()
 
-	r := mux.NewRouter()
+	router := mux.NewRouter()
+	handler := api.Handler{Providor: providors.NewProvidor(providors.Vultr, apiKey)}
 
-	api := r.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/info", handleInfo).Methods(http.MethodGet)
-	api.HandleFunc("/start", handleStart).Methods(http.MethodGet)
+	api := router.PathPrefix("/api").Subrouter()
+	api.HandleFunc("/info", handler.HandleInfo).Methods(http.MethodGet)
+	api.HandleFunc("/start", handler.HandleStart).Methods(http.MethodGet)
 
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	if err := http.ListenAndServe(":"+port, router); err != nil {
 		panic(err)
 	}
 }
