@@ -31,16 +31,16 @@ func parseFlags() (string, string) {
 func main() {
 	apiKey, port := parseFlags()
 
-	router := mux.NewRouter()
+	server := mux.NewRouter()
 	handler := api.Handler{Providor: providors.NewProvidor(providors.Vultr, apiKey)}
 
-	api := router.PathPrefix("/api").Subrouter()
-	api.HandleFunc("/info", handler.HandleInfo).Methods(http.MethodGet)
-	api.HandleFunc("/start", handler.HandleStart).Methods(http.MethodGet)
+	router := server.PathPrefix("/api").Subrouter()
+	router.HandleFunc("/info", handler.HandleInfo).Methods(http.MethodGet)
+	router.HandleFunc("/start", handler.HandleStart).Methods(http.MethodGet)
 
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+	server.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 
-	if err := http.ListenAndServe(":"+port, router); err != nil {
+	if err := http.ListenAndServe(":"+port, server); err != nil {
 		panic(err)
 	}
 }
