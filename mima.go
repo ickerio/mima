@@ -74,10 +74,13 @@ func main() {
 			},
 		},
 	}
-	fmt.Println(".mima.yml")
-	config := getConfig("mima.yml")
 
-	fmt.Println(config)
+	app.Action = func(c *cli.Context) error {
+		config := getConfig(c.String("config"))
+
+		fmt.Println(config)
+		return nil
+	}
 
 	err := app.Run(os.Args)
 	if err != nil {
