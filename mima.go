@@ -46,14 +46,18 @@ func main() {
 			{
 				Name:    "info",
 				Aliases: []string{"i"},
-				Usage:   "Displays info on given game server",
+				Usage:   "Displays info on the server",
 				Action: func(c *cli.Context) error {
-					res, err := prov.Info()
+					ser, err := prov.Info()
 					if err != nil {
-						fmt.Println(err)
-					} else {
-						fmt.Println(res)
+						return err
 					}
+
+					fmt.Printf(
+						"%v running %v in %v at %v\n%v memory, %v storage, %v cpus",
+						ser.Name, ser.Os, ser.Location, ser.IP, ser.Memory, ser.Storage, ser.CPUCount,
+					)
+
 					return nil
 				},
 			},

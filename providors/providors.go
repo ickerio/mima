@@ -46,7 +46,7 @@ func Get(config config.Config, name string) (Providor, error) {
 	}
 
 	if name == "" {
-		return nil, errors.New("Please enter an instance name")
+		return nil, errors.New("Please enter an server name")
 	}
-	return nil, errors.New("Instance name did not match any in config file")
+	return nil, errors.New("Server name did not match any in config file")
 }

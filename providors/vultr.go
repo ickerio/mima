@@ -43,7 +43,7 @@ func (v Vultr) Info() (Server, error) {
 			return s, nil
 		}
 	}
-	return s, errors.New("Instance currently offline")
+	return s, errors.New("Server currently offline")
 }
 
 // CreateServer TOODODODODODODO
