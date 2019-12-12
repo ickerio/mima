@@ -7,12 +7,12 @@ import (
 	"github.com/vultr/govultr"
 )
 
-// Providor Interface for the Vultr, DigitalOcean
+// Providor is the interface for the Vultr, DigitalOcean structs
 type Providor interface {
-	ListServers() []Server
+	Info() (Server, error)
 }
 
-// Server Details the information of a VPS server
+// Server details the information of a VPS server
 type Server struct {
 	Name             string
 	Os               string
@@ -28,21 +28,25 @@ type Server struct {
 	Password         string
 }
 
-// Get Returns a providor from the config and the user input
+// Get returns a providor from the config and user input
 func Get(config config.Config, name string) (Providor, error) {
 	for i := range config.Servers {
 		if config.Servers[i].Name == name {
 			switch config.Servers[i].Providor {
 			case "Vultr":
 				v := govultr.NewClient(nil, config.Keys.Vultr)
-				return Vultr{apiKey: config.Keys.Vultr, client: v, instanceName: name}, nil
+				return Vultr{apiKey: config.Keys.Vultr, client: v, name: name}, nil
 			case "DigitalOcean":
 				v := govultr.NewClient(nil, config.Keys.DigitalOcean)
-				return Vultr{apiKey: config.Keys.DigitalOcean, client: v, instanceName: name}, nil
+				return Vultr{apiKey: config.Keys.DigitalOcean, client: v, name: name}, nil
 			default:
-				return nil, errors.New("Invalid providor in config")
+				return nil, errors.New("Invalid providor in config (Must be: Vultr or DigitalOcean)")
 			}
 		}
 	}
-	return nil, errors.New("Could not match instance name to config file")
+
+	if name == "" {
+		return nil, errors.New("Please enter an instance name")
+	}
+	return nil, errors.New("Instance name did not match any in config file")
 }

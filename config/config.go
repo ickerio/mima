@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Config Equivalent structure of .mima.yml config file
+// Config is the structure of .mima.yml config file
 type Config struct {
 	Keys struct {
 		Vultr        string `yaml:"vultr"`
@@ -20,7 +20,7 @@ type Config struct {
 	} `yaml:"servers"`
 }
 
-// Get Opens, parses and returns YAML config file
+// Get will open, parses and return the YAML config file
 func Get(fileName string) (Config, error) {
 	var cfg Config
 

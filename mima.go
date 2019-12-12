@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ickerio/mima/config"
 	"github.com/ickerio/mima/providors"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -33,12 +32,13 @@ func main() {
 			}
 			conf = configuration
 
-			fmt.Println(c.Args().First())
-			providor, err := providors.Get(conf, c.Args().First())
-			if err != nil {
-				return err
+			if c.Args().Present() {
+				providor, err := providors.Get(conf, c.Args().Get(1))
+				if err != nil {
+					return err
+				}
+				prov = providor
 			}
-			prov = providor
 
 			return nil
 		},
@@ -48,8 +48,12 @@ func main() {
 				Aliases: []string{"i"},
 				Usage:   "Displays info on given game server",
 				Action: func(c *cli.Context) error {
-					fmt.Println(conf)
-					fmt.Println(prov)
+					res, err := prov.Info()
+					if err != nil {
+						fmt.Println(err)
+					} else {
+						fmt.Println(res)
+					}
 					return nil
 				},
 			},
@@ -74,8 +78,5 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
+	app.Run(os.Args)
 }
