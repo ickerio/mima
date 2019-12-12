@@ -5,35 +5,17 @@ import (
 	"log"
 	"os"
 
+	"github.com/ickerio/mima/config"
+	"github.com/ickerio/mima/providors"
 	"github.com/urfave/cli"
-	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
-	VultrKey string `yaml:"vultr_key"`
-	DOKey    string `yaml:"do_key"`
-	Servers  []struct {
-		Name     string `yaml:"name"`
-		Providor string `yaml:"providor"`
-		Plan     string `yaml:"plan"`
-	} `yaml:"servers"`
-}
-
-func getConfig(fileName string) Config {
-	f, err := os.Open(fileName)
-	if err != nil {
-		panic(err)
-	}
-	decoder := yaml.NewDecoder(f)
-	var cfg Config
-	err = decoder.Decode(&cfg)
-	if err != nil {
-		panic(err)
-	}
-	return cfg
-}
-
 func main() {
+	var (
+		conf config.Config
+		prov providors.Providor
+	)
+
 	app := &cli.App{
 		Name:  "mima",
 		Usage: "Server manager",
@@ -44,13 +26,30 @@ func main() {
 				Value: ".mima.yml",
 			},
 		},
+		Before: func(c *cli.Context) error {
+			configuration, err := config.Get(c.String("config"))
+			if err != nil {
+				return err
+			}
+			conf = configuration
+
+			fmt.Println(c.Args().First())
+			providor, err := providors.Get(conf, c.Args().First())
+			if err != nil {
+				return err
+			}
+			prov = providor
+
+			return nil
+		},
 		Commands: []*cli.Command{
 			{
 				Name:    "info",
 				Aliases: []string{"i"},
 				Usage:   "Displays info on given game server",
 				Action: func(c *cli.Context) error {
-					fmt.Printf("info %q", c.Args().Get(0))
+					fmt.Println(conf)
+					fmt.Println(prov)
 					return nil
 				},
 			},
@@ -73,13 +72,6 @@ func main() {
 				},
 			},
 		},
-	}
-
-	app.Action = func(c *cli.Context) error {
-		config := getConfig(c.String("config"))
-
-		fmt.Println(config)
-		return nil
 	}
 
 	err := app.Run(os.Args)

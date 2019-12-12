@@ -7,15 +7,15 @@ import (
 	"github.com/vultr/govultr"
 )
 
-// VultrProvidor Client for Vultr VPS
-type VultrProvidor struct {
+// Vultr Client for Vultr VPS
+type Vultr struct {
 	apiKey       string
 	client       *govultr.Client
 	instanceName string
 }
 
 // ListServers Retrieves all hosted VPS servers
-func (v VultrProvidor) ListServers() []Server {
+func (v Vultr) ListServers() []Server {
 	res, _ := v.client.Server.List(context.Background())
 	var list []Server
 	for _, el := range res {
@@ -38,7 +38,7 @@ func (v VultrProvidor) ListServers() []Server {
 }
 
 // CreateServer TOODODODODODODO
-func (v VultrProvidor) CreateServer() {
+func (v Vultr) CreateServer() {
 	vpsOptions := &govultr.ServerOptions{
 		Label:                "awesome-go-app",
 		Hostname:             "awesome-go.com",
