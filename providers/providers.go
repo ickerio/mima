@@ -10,6 +10,8 @@ import (
 // Provider is the interface for the Vultr, DigitalOcean structs
 type Provider interface {
 	Info() (Server, error)
+	Regions() ([]Region, error)
+	Plans() ([]Plan, error)
 }
 
 // Server details the information of a VPS server
@@ -28,17 +30,44 @@ type Server struct {
 	Password         string
 }
 
-// Get returns a provider from the config and user input
-func Get(conf util.Config, name string) (Provider, error) {
+// Region details the information of a VPS region
+type Region struct {
+	ID   string
+	Name string
+}
+
+// Plan details the information of a VPS plan
+type Plan struct {
+	ID          string
+	Description string
+}
+
+// GetNoAuth returns a provider without a key
+func GetNoAuth(service string) (Provider, error) {
+	switch service {
+	case "Vultr":
+		v := govultr.NewClient(nil, "")
+		return Vultr{client: v}, nil
+	case "DigitalOcean":
+		v := govultr.NewClient(nil, "")
+		return Vultr{client: v}, nil
+	default:
+		return nil, errors.New("Invalid provider in config (Must be: Vultr or DigitalOcean)")
+	}
+
+}
+
+// GetFromConfig returns a provider from the config and user input
+func GetFromConfig(conf util.Config, name string) (Provider, error) {
 	for i := range conf.Servers {
 		if conf.Servers[i].Name == name {
 			switch conf.Servers[i].Provider {
 			case "Vultr":
 				v := govultr.NewClient(nil, conf.Keys.Vultr)
-				return Vultr{apiKey: conf.Keys.Vultr, client: v, name: name}, nil
+				return Vultr{client: v, name: name}, nil
 			case "DigitalOcean":
 				v := govultr.NewClient(nil, conf.Keys.DigitalOcean)
-				return Vultr{apiKey: conf.Keys.DigitalOcean, client: v, name: name}, nil
+				return Vultr{client: v, name: name}, nil
 			default:
 				return nil, errors.New("Invalid provider in config (Must be: Vultr or DigitalOcean)")
 			}

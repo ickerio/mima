@@ -3,14 +3,12 @@ package providers
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/vultr/govultr"
 )
 
 // Vultr Client for Vultr VPS
 type Vultr struct {
-	apiKey string
 	client *govultr.Client
 	name   string
 }
@@ -19,12 +17,12 @@ type Vultr struct {
 func (v Vultr) Info() (Server, error) {
 	var server Server
 
-	res, err := v.client.Server.List(context.Background())
+	servers, err := v.client.Server.List(context.Background())
 	if err != nil {
 		return server, err
 	}
 
-	for _, element := range res {
+	for _, element := range servers {
 		if element.Label == v.name {
 			server = Server{
 				Name:             element.Label,
@@ -46,18 +44,32 @@ func (v Vultr) Info() (Server, error) {
 	return server, errors.New("Server currently offline")
 }
 
-// CreateServer TOODODODODODODO
-func (v Vultr) CreateServer() {
-	vpsOptions := &govultr.ServerOptions{
-		Label: v.name,
+// Regions will grab all regions available from the providor
+func (v Vultr) Regions() ([]Region, error) {
+	var regions []Region
+	reg, err := v.client.Region.List(context.Background())
+
+	for _, element := range reg {
+		regions = append(regions, Region{
+			ID:   element.RegionID,
+			Name: element.Name,
+		})
 	}
 
-	// RegionId, VpsPlanID, OsID can be grabbed from their respective API calls
-	res, err := v.client.Server.Create(context.Background(), 1, 201, 1, vpsOptions)
+	return regions, err
+}
 
-	if err != nil {
-		fmt.Println(err)
+// Plans will grab all regions available from the providor
+func (v Vultr) Plans() ([]Plan, error) {
+	var plans []Plan
+	pla, err := v.client.Plan.GetVc2List(context.Background())
+
+	for _, element := range pla {
+		plans = append(plans, Plan{
+			ID:          element.PlanID,
+			Description: element.Name,
+		})
 	}
 
-	fmt.Println(res)
+	return plans, err
 }
