@@ -17,43 +17,39 @@ type Vultr struct {
 
 // Info Retrieves all hosted VPS servers
 func (v Vultr) Info() (Server, error) {
-	var s Server
+	var server Server
 
 	res, err := v.client.Server.List(context.Background())
 	if err != nil {
-		return s, err
+		return server, err
 	}
 
-	for _, el := range res {
-		if el.Label == v.name {
-			s = Server{
-				Name:             el.Label,
-				Os:               el.Os,
-				Memory:           el.RAM,
-				Storage:          el.Disk,
-				CPUCount:         el.VPSCpus,
-				IP:               el.MainIP,
-				CurrentBandwidth: el.CurrentBandwidth,
-				AllowedBandwidth: el.AllowedBandwidth,
-				Location:         el.Location,
-				Cost:             el.Cost,
-				Created:          el.Created,
-				Password:         el.DefaultPassword,
+	for _, element := range res {
+		if element.Label == v.name {
+			server = Server{
+				Name:             element.Label,
+				Os:               element.Os,
+				Memory:           element.RAM,
+				Storage:          element.Disk,
+				CPUCount:         element.VPSCpus,
+				IP:               element.MainIP,
+				CurrentBandwidth: element.CurrentBandwidth,
+				AllowedBandwidth: element.AllowedBandwidth,
+				Location:         element.Location,
+				Cost:             element.Cost,
+				Created:          element.Created,
+				Password:         element.DefaultPassword,
 			}
-			return s, nil
+			return server, nil
 		}
 	}
-	return s, errors.New("Server currently offline")
+	return server, errors.New("Server currently offline")
 }
 
 // CreateServer TOODODODODODODO
 func (v Vultr) CreateServer() {
 	vpsOptions := &govultr.ServerOptions{
-		Label:                "awesome-go-app",
-		Hostname:             "awesome-go.com",
-		EnablePrivateNetwork: true,
-		AutoBackups:          true,
-		EnableIPV6:           true,
+		Label: v.name,
 	}
 
 	// RegionId, VpsPlanID, OsID can be grabbed from their respective API calls
