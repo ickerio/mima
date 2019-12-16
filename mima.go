@@ -10,11 +10,6 @@ import (
 )
 
 func main() {
-	var (
-		conf util.Config
-		prov providers.Provider
-	)
-
 	app := &cli.App{
 		Name:  "mima",
 		Usage: "Server manager",
@@ -25,29 +20,22 @@ func main() {
 				Value: ".mima.yml",
 			},
 		},
-		Before: func(c *cli.Context) error {
-			configuration, err := util.GetConfig(c.String("config"))
-			if err != nil {
-				return err
-			}
-			conf = configuration
-
-			if c.Args().Present() {
-				provider, err := providers.Get(conf, c.Args().Get(1))
-				if err != nil {
-					return err
-				}
-				prov = provider
-			}
-
-			return nil
-		},
 		Commands: []*cli.Command{
 			{
 				Name:    "info",
 				Aliases: []string{"i"},
 				Usage:   "Displays info on the server",
 				Action: func(c *cli.Context) error {
+					conf, err := util.GetConfig(c.String("config"))
+					if err != nil {
+						return err
+					}
+
+					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
 					ser, err := prov.Info()
 					if err != nil {
 						return err
@@ -62,20 +50,36 @@ func main() {
 				},
 			},
 			{
-				Name:    "start",
-				Aliases: []string{"s"},
-				Usage:   "Starts the given server if not already online",
+				Name:  "start",
+				Usage: "Starts the given server if not already online",
 				Action: func(c *cli.Context) error {
 					fmt.Printf("start %q", c.Args().Get(0))
 					return nil
 				},
 			},
 			{
-				Name:    "end",
-				Aliases: []string{"e"},
-				Usage:   "Stop the given server if currently online",
+				Name:  "stop",
+				Usage: "Stop the given server if currently online",
 				Action: func(c *cli.Context) error {
 					fmt.Printf("end %q", c.Args().Get(0))
+					return nil
+				},
+			},
+			{
+				Name:    "regions",
+				Aliases: []string{"region", "r"},
+				Usage:   "Lists all the regions of a particular service",
+				Action: func(c *cli.Context) error {
+					fmt.Printf("regions %q", c.Args().Get(0))
+					return nil
+				},
+			},
+			{
+				Name:    "plans",
+				Aliases: []string{"plan", "p"},
+				Usage:   "Lists all the plans of a particular service",
+				Action: func(c *cli.Context) error {
+					fmt.Printf("plans %q", c.Args().Get(0))
 					return nil
 				},
 			},
