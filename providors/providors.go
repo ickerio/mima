@@ -1,24 +1,18 @@
 package providors
 
 import (
+	"errors"
+
+	"github.com/ickerio/mima/config"
 	"github.com/vultr/govultr"
 )
 
-/*
- * Vultr Enum for the Vultr VPS when using NewProvidor()
- * DigitalOcean Enum for the DigitalOcean VPS when using NewProvidor()
- */
-const (
-	Vultr        = iota
-	DigitalOcean = iota
-)
-
-// VpsProvidor Interface for the Vultr, DigitalOcean
-type VpsProvidor interface {
-	ListServers() []Server
+// Providor is the interface for the Vultr, DigitalOcean structs
+type Providor interface {
+	Info() (Server, error)
 }
 
-// Server Details the information of a VPS server
+// Server details the information of a VPS server
 type Server struct {
 	Name             string
 	Os               string
@@ -34,16 +28,25 @@ type Server struct {
 	Password         string
 }
 
-// NewProvidor Instanciates the desired VPS client
-func NewProvidor(providor int, apiKey string) VpsProvidor {
-	switch providor {
-	case Vultr:
-		v := govultr.NewClient(nil, apiKey)
-		return VultrProvidor{apiKey: apiKey, client: v}
-	case DigitalOcean:
-		v := govultr.NewClient(nil, apiKey)
-		return VultrProvidor{apiKey: apiKey, client: v}
-	default:
-		panic("No such providor")
+// Get returns a providor from the config and user input
+func Get(config config.Config, name string) (Providor, error) {
+	for i := range config.Servers {
+		if config.Servers[i].Name == name {
+			switch config.Servers[i].Providor {
+			case "Vultr":
+				v := govultr.NewClient(nil, config.Keys.Vultr)
+				return Vultr{apiKey: config.Keys.Vultr, client: v, name: name}, nil
+			case "DigitalOcean":
+				v := govultr.NewClient(nil, config.Keys.DigitalOcean)
+				return Vultr{apiKey: config.Keys.DigitalOcean, client: v, name: name}, nil
+			default:
+				return nil, errors.New("Invalid providor in config (Must be: Vultr or DigitalOcean)")
+			}
+		}
 	}
+
+	if name == "" {
+		return nil, errors.New("Please enter an server name")
+	}
+	return nil, errors.New("Server name did not match any in config file")
 }

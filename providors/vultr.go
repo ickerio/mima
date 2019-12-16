@@ -2,42 +2,52 @@ package providors
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/vultr/govultr"
 )
 
-// VultrProvidor Client for Vultr VPS
-type VultrProvidor struct {
+// Vultr Client for Vultr VPS
+type Vultr struct {
 	apiKey string
 	client *govultr.Client
+	name   string
 }
 
-// ListServers Retrieves all hosted VPS servers
-func (v VultrProvidor) ListServers() []Server {
-	res, _ := v.client.Server.List(context.Background())
-	var list []Server
-	for _, el := range res {
-		list = append(list, Server{
-			Name:             el.Label,
-			Os:               el.Os,
-			Memory:           el.RAM,
-			Storage:          el.Disk,
-			CPUCount:         el.VPSCpus,
-			IP:               el.MainIP,
-			CurrentBandwidth: el.CurrentBandwidth,
-			AllowedBandwidth: el.AllowedBandwidth,
-			Location:         el.Location,
-			Cost:             el.Cost,
-			Created:          el.Created,
-			Password:         el.DefaultPassword,
-		})
+// Info Retrieves all hosted VPS servers
+func (v Vultr) Info() (Server, error) {
+	var s Server
+
+	res, err := v.client.Server.List(context.Background())
+	if err != nil {
+		return s, err
 	}
-	return list
+
+	for _, el := range res {
+		if el.Label == v.name {
+			s = Server{
+				Name:             el.Label,
+				Os:               el.Os,
+				Memory:           el.RAM,
+				Storage:          el.Disk,
+				CPUCount:         el.VPSCpus,
+				IP:               el.MainIP,
+				CurrentBandwidth: el.CurrentBandwidth,
+				AllowedBandwidth: el.AllowedBandwidth,
+				Location:         el.Location,
+				Cost:             el.Cost,
+				Created:          el.Created,
+				Password:         el.DefaultPassword,
+			}
+			return s, nil
+		}
+	}
+	return s, errors.New("Server currently offline")
 }
 
 // CreateServer TOODODODODODODO
-func (v VultrProvidor) CreateServer() {
+func (v Vultr) CreateServer() {
 	vpsOptions := &govultr.ServerOptions{
 		Label:                "awesome-go-app",
 		Hostname:             "awesome-go.com",

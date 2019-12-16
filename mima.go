@@ -1,46 +1,86 @@
 package main
 
 import (
-	"flag"
-	"net/http"
+	"fmt"
+	"os"
 
-	"github.com/gorilla/mux"
-	"github.com/ickerio/mima/api"
+	"github.com/ickerio/mima/config"
 	"github.com/ickerio/mima/providors"
+	"github.com/urfave/cli/v2"
 )
 
-/*
-type Options struct {
-	label string
-}
-*/
-
-func parseFlags() (string, string) {
-	var apiKey = flag.String("key", "", "API key for either Vultr or DigitalOcean")
-	var port = flag.String("port", "8080", "Port to host web server on")
-	flag.Parse()
-
-	if *apiKey == "" {
-		flag.PrintDefaults()
-		panic("No apikey set!")
-	}
-
-	return *apiKey, *port
-}
-
 func main() {
-	apiKey, port := parseFlags()
+	var (
+		conf config.Config
+		prov providors.Providor
+	)
 
-	server := mux.NewRouter()
-	handler := api.Handler{Providor: providors.NewProvidor(providors.Vultr, apiKey)}
+	app := &cli.App{
+		Name:  "mima",
+		Usage: "Server manager",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "config, c",
+				Usage: "Load configuration from `FILE`",
+				Value: ".mima.yml",
+			},
+		},
+		Before: func(c *cli.Context) error {
+			configuration, err := config.Get(c.String("config"))
+			if err != nil {
+				return err
+			}
+			conf = configuration
 
-	router := server.PathPrefix("/api").Subrouter()
-	router.HandleFunc("/info", handler.HandleInfo).Methods(http.MethodGet)
-	router.HandleFunc("/start", handler.HandleStart).Methods(http.MethodGet)
+			if c.Args().Present() {
+				providor, err := providors.Get(conf, c.Args().Get(1))
+				if err != nil {
+					return err
+				}
+				prov = providor
+			}
 
-	server.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+			return nil
+		},
+		Commands: []*cli.Command{
+			{
+				Name:    "info",
+				Aliases: []string{"i"},
+				Usage:   "Displays info on the server",
+				Action: func(c *cli.Context) error {
+					ser, err := prov.Info()
+					if err != nil {
+						return err
+					}
 
-	if err := http.ListenAndServe(":"+port, server); err != nil {
-		panic(err)
+					fmt.Printf(
+						"%v running %v in %v at %v\n%v memory, %v storage, %v cpus",
+						ser.Name, ser.Os, ser.Location, ser.IP, ser.Memory, ser.Storage, ser.CPUCount,
+					)
+
+					return nil
+				},
+			},
+			{
+				Name:    "start",
+				Aliases: []string{"s"},
+				Usage:   "Starts the given server if not already online",
+				Action: func(c *cli.Context) error {
+					fmt.Printf("start %q", c.Args().Get(0))
+					return nil
+				},
+			},
+			{
+				Name:    "end",
+				Aliases: []string{"e"},
+				Usage:   "Stop the given server if currently online",
+				Action: func(c *cli.Context) error {
+					fmt.Printf("end %q", c.Args().Get(0))
+					return nil
+				},
+			},
+		},
 	}
+
+	app.Run(os.Args)
 }

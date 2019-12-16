@@ -1,4 +1,4 @@
-package connct
+package connect
 
 import (
 	"io"
