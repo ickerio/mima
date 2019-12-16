@@ -1,4 +1,4 @@
-package providors
+package providers
 
 import (
 	"context"

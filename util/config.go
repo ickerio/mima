@@ -1,4 +1,4 @@
-package config
+package util
 
 import (
 	"errors"
@@ -15,13 +15,14 @@ type Config struct {
 	} `yaml:"keys"`
 	Servers []struct {
 		Name     string `yaml:"name"`
-		Providor string `yaml:"providor"`
+		Provider string `yaml:"provider"`
 		Plan     string `yaml:"plan"`
+		Region   string `yaml:"region"`
 	} `yaml:"servers"`
 }
 
-// Get will open, parses and return the YAML config file
-func Get(fileName string) (Config, error) {
+// GetConfig will open, parses and return the YAML config file
+func GetConfig(fileName string) (Config, error) {
 	var cfg Config
 
 	f, err := os.Open(fileName)

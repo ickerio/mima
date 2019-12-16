@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ickerio/mima/config"
-	"github.com/ickerio/mima/providors"
+	"github.com/ickerio/mima/providers"
+	"github.com/ickerio/mima/util"
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
 	var (
-		conf config.Config
-		prov providors.Providor
+		conf util.Config
+		prov providers.Provider
 	)
 
 	app := &cli.App{
@@ -26,18 +26,18 @@ func main() {
 			},
 		},
 		Before: func(c *cli.Context) error {
-			configuration, err := config.Get(c.String("config"))
+			configuration, err := util.GetConfig(c.String("config"))
 			if err != nil {
 				return err
 			}
 			conf = configuration
 
 			if c.Args().Present() {
-				providor, err := providors.Get(conf, c.Args().Get(1))
+				provider, err := providers.Get(conf, c.Args().Get(1))
 				if err != nil {
 					return err
 				}
-				prov = providor
+				prov = provider
 			}
 
 			return nil
