@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ickerio/mima/printer"
 	"github.com/ickerio/mima/providers"
 	"github.com/ickerio/mima/util"
 	"github.com/urfave/cli/v2"
@@ -41,10 +42,7 @@ func main() {
 						return err
 					}
 
-					fmt.Printf(
-						"%v running %v in %v at %v\n%v memory, %v storage, %v cpus",
-						ser.Name, ser.Os, ser.Location, ser.IP, ser.Memory, ser.Storage, ser.CPUCount,
-					)
+					printer.PrintInfo(ser)
 
 					return nil
 				},
