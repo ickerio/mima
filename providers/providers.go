@@ -52,7 +52,7 @@ func GetNoAuth(service string) (Provider, error) {
 		v := govultr.NewClient(nil, "")
 		return Vultr{client: v}, nil
 	default:
-		return nil, errors.New("Invalid provider in config (Must be: Vultr or DigitalOcean)")
+		return nil, errors.New("Invalid provider used (Must be: Vultr or DigitalOcean)")
 	}
 
 }

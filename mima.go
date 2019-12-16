@@ -68,7 +68,11 @@ func main() {
 				Aliases: []string{"region", "r"},
 				Usage:   "Lists all the regions of a particular service",
 				Action: func(c *cli.Context) error {
-					fmt.Printf("regions %q", c.Args().Get(0))
+					prov, err := providers.GetNoAuth(c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+					fmt.Println(prov.Plans())
 					return nil
 				},
 			},
@@ -77,7 +81,11 @@ func main() {
 				Aliases: []string{"plan", "p"},
 				Usage:   "Lists all the plans of a particular service",
 				Action: func(c *cli.Context) error {
-					fmt.Printf("plans %q", c.Args().Get(0))
+					prov, err := providers.GetNoAuth(c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+					fmt.Println(prov.Regions())
 					return nil
 				},
 			},
