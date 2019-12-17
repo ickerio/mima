@@ -3,6 +3,7 @@ package providers
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/vultr/govultr"
 )
@@ -44,7 +45,7 @@ func (v Vultr) Info() (Server, error) {
 	return server, errors.New("Server currently offline")
 }
 
-// Regions will grab all regions available from the providor
+// Regions will grab all regions available from the provider
 func (v Vultr) Regions() ([]Region, error) {
 	var regions []Region
 	reg, err := v.client.Region.List(context.Background())
@@ -59,15 +60,15 @@ func (v Vultr) Regions() ([]Region, error) {
 	return regions, err
 }
 
-// Plans will grab all regions available from the providor
+// Plans will grab all regions available from the provider
 func (v Vultr) Plans() ([]Plan, error) {
 	var plans []Plan
-	pla, err := v.client.Plan.GetVc2List(context.Background())
+	plan, err := v.client.Plan.GetVc2List(context.Background())
 
-	for _, element := range pla {
+	for _, element := range plan {
 		plans = append(plans, Plan{
 			ID:          element.PlanID,
-			Description: element.Name,
+			Description: strings.Replace(element.Name, ",", ", ", -1),
 		})
 	}
 

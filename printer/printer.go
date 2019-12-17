@@ -1,10 +1,8 @@
 package printer
 
 import (
-	"encoding/csv"
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/ickerio/mima/providers"
 )
@@ -32,22 +30,7 @@ func PrintPlans(plans []providers.Plan) {
 		"├────────┼──────────────────────────────────────────┤\n"
 
 	for _, plan := range plans {
-		reader := csv.NewReader(strings.NewReader(plan.Description))
-		record, err := reader.Read()
-		if err != nil {
-			fmt.Printf("An error occurred when printing plans.")
-			return
-		}
-
-		var description string
-		for i, item := range record {
-			if i == len(record)-1 {
-				description += item
-			} else {
-				description += item + ", "
-			}
-		}
-		output += fmt.Sprintf("│ %-6v │ %40v │\n", plan.ID, description)
+		output += fmt.Sprintf("│ %-6v │ %40v │\n", plan.ID, plan.Description)
 	}
 
 	output += "└────────┴──────────────────────────────────────────┘"
