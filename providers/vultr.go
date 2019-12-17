@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/vultr/govultr"
 )
@@ -79,7 +80,7 @@ func (v Vultr) Plans() ([]Plan, error) {
 		planID, _ := strconv.Atoi(element.PlanID)
 		plans = append(plans, Plan{
 			ID:          planID,
-			Description: element.Name,
+			Description: strings.Replace(element.Name, ",", ", ", -1),
 		})
 	}
 
