@@ -1,3 +1,0 @@
-# mima
-
-LINUX COPY
