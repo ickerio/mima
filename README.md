@@ -1,5 +1,5 @@
 # mima
-**MI**cro **MA**nager for games (and services) on your VPS
+**mi**cro **ma**nager for games (and services) on your VPS
 
 mima is a small command line interface tool that sits on your personal computer and allows you to rapidly start and stop game servers and other services when not in use to save money. We found that we'd only ever play on our community minecraft server for several hours of the week, despite this we'd be paying (per hour) for the whole week. Logging onto the VPS provider, configuring a new server, manually transfering a massive 500mb world save, then downloading java and ssh-ing into the server to start it seemed infeasible if we'd want to cut back on these unnecessary 161 hosting hours. mima aims to provide a lightweight, easily configurable and quick solution to this problem. We calculated it would bring our server cost down from $20/month to merely $0.84/month.
 
