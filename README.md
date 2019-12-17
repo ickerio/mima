@@ -6,7 +6,7 @@ mima is a small command line interface tool that sits on your personal computer 
 > At current release mima only supports Vultr and defaults to a minecraft server service. We intend to expand on this in the future.
 
 ## Installation
-See (releases)[https://github.com/ickerio/mima/releases] to download the most recent version of the mima CLI executable for your system
+See [releases](https://github.com/ickerio/mima/releases) to download the most recent version of the mima CLI executable for your system
 
 ## Config
 By default a `.mima.yml` file will be loaded but the file name can be configured with the global `--config` flag.
@@ -23,7 +23,7 @@ servers:
     os: 338
 ```
 
-Your config file should include any API keys from the services you use. We currently support (Vultr)[https://my.vultr.com/settings/#settingsapi] and ~~DigitalOcean~~ as VPS providers. Next, list any services you want mima to manage - these do not have to be already running. Note that the `plan`, `region` and `os` fields are unique IDs for the given provider. Please use the corresponding commands (`plans`, `regions` and `os`) to list human readable forms with their respective IDs.
+Your config file should include any API keys from the services you use. We currently support [Vultr](https://my.vultr.com/settings/#settingsapi) and ~~DigitalOcean~~ as VPS providers. Next, list any services you want mima to manage - these do not have to be already running. Note that the `plan`, `region` and `os` fields are unique IDs for the given provider. Please use the corresponding commands (`plans`, `regions` and `os`) to list human readable forms with their respective IDs.
 
 ## Commands
 
