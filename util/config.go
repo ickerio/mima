@@ -16,8 +16,9 @@ type Config struct {
 	Servers []struct {
 		Name     string `yaml:"name"`
 		Provider string `yaml:"provider"`
-		Plan     string `yaml:"plan"`
-		Region   string `yaml:"region"`
+		Plan     int    `yaml:"plan"`
+		Region   int    `yaml:"region"`
+		OS       int    `yaml:"os"`
 	} `yaml:"servers"`
 }
 
