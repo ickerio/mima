@@ -52,6 +52,11 @@ func (v Vultr) Info() (Server, error) {
 
 // Start the desired server
 func (v Vultr) Start() error {
+	server, _ := v.Info()
+	if server != (Server{}) {
+		return errors.New("Server already online")
+	}
+
 	vpsOptions := &govultr.ServerOptions{
 		Label: v.name,
 	}
