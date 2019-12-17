@@ -34,8 +34,6 @@ Your config file should include any API keys from the services you use. We curre
 
 Outputs server information if specified server is online. The `<name of server>` parameter must correspond to a server name in the config file.
 
-![Quickly see your instance information](https://user-images.githubusercontent.com/14541442/70968781-2b039780-20d5-11ea-8656-82184ce6207c.png)
-
 ### start / stop
 **Usage** `mima <start/stop> <name of server>`
 
