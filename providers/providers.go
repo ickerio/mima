@@ -10,12 +10,16 @@ import (
 // Provider is the interface for the Vultr, DigitalOcean structs
 type Provider interface {
 	Info() (Server, error)
-	Regions() ([]Region, error)
+	Start() error
+	Stop() error
 	Plans() ([]Plan, error)
+	Regions() ([]Region, error)
+	OS() ([]OS, error)
 }
 
 // Server details the information of a VPS server
 type Server struct {
+	ID               string
 	Name             string
 	Os               string
 	Memory           string
@@ -30,16 +34,22 @@ type Server struct {
 	Password         string
 }
 
+// Plan details the information of a VPS plan
+type Plan struct {
+	ID          int
+	Description string
+}
+
 // Region details the information of a VPS region
 type Region struct {
-	ID   string
+	ID   int
 	Name string
 }
 
-// Plan details the information of a VPS plan
-type Plan struct {
-	ID          string
-	Description string
+// OS details the information of a VPS operating system
+type OS struct {
+	ID   int
+	Name string
 }
 
 // GetNoAuth returns a provider without a key
@@ -64,7 +74,7 @@ func GetFromConfig(conf util.Config, name string) (Provider, error) {
 			switch conf.Servers[i].Provider {
 			case "Vultr":
 				v := govultr.NewClient(nil, conf.Keys.Vultr)
-				return Vultr{client: v, name: name}, nil
+				return Vultr{client: v, name: name, region: conf.Servers[i].Region, plan: conf.Servers[i].Plan, os: conf.Servers[i].OS}, nil
 			case "DigitalOcean":
 				v := govultr.NewClient(nil, conf.Keys.DigitalOcean)
 				return Vultr{client: v, name: name}, nil

@@ -55,3 +55,22 @@ func PrintRegions(regions []providers.Region) {
 	output += "└────────┴──────────────────────┘"
 	fmt.Print(output)
 }
+
+func PrintOS(os []providers.OS) {
+	var output string
+	output += "" +
+		"┌────────┬──────────────────────┐\n" +
+		"│ ID     │ Name                 │\n" +
+		"├────────┼──────────────────────┤\n"
+
+	sort.SliceStable(os, func(i, j int) bool {
+		return os[i].Name[0] < os[j].Name[0]
+	})
+
+	for _, region := range os {
+		output += fmt.Sprintf("│ %-6v │ %20v │\n", region.ID, region.Name)
+	}
+
+	output += "└────────┴──────────────────────┘"
+	fmt.Print(output)
+}

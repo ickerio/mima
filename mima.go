@@ -20,6 +20,11 @@ func main() {
 				Usage: "Load configuration from `FILE`",
 				Value: ".mima.yml",
 			},
+			&cli.StringFlag{
+				Name:  "saves, s",
+				Usage: "`DIR`ectory of saved data",
+				Value: "saves",
+			},
 		},
 		Commands: []*cli.Command{
 			{
@@ -51,7 +56,23 @@ func main() {
 				Name:  "start",
 				Usage: "Starts the given server if not already online",
 				Action: func(c *cli.Context) error {
-					fmt.Printf("start %q", c.Args().Get(0))
+					conf, err := util.GetConfig(c.String("config"))
+					if err != nil {
+						return err
+					}
+
+					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					err = prov.Start()
+					if err != nil {
+						return err
+					}
+
+					fmt.Println("Success! VPS is starting now... please wait")
+
 					return nil
 				},
 			},
@@ -59,7 +80,41 @@ func main() {
 				Name:  "stop",
 				Usage: "Stop the given server if currently online",
 				Action: func(c *cli.Context) error {
-					fmt.Printf("end %q", c.Args().Get(0))
+					conf, err := util.GetConfig(c.String("config"))
+					if err != nil {
+						return err
+					}
+
+					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					err = prov.Stop()
+					if err != nil {
+						return err
+					}
+
+					fmt.Println("Success! VPS is shutting down")
+					return nil
+				},
+			},
+			{
+				Name:    "plans",
+				Aliases: []string{"plan", "p"},
+				Usage:   "Lists all the plans of a particular service",
+				Action: func(c *cli.Context) error {
+					prov, err := providers.GetNoAuth(c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					plans, err := prov.Plans()
+					if err != nil {
+						return err
+					}
+					printer.PrintPlans(plans)
+
 					return nil
 				},
 			},
@@ -83,20 +138,19 @@ func main() {
 				},
 			},
 			{
-				Name:    "plans",
-				Aliases: []string{"plan", "p"},
-				Usage:   "Lists all the plans of a particular service",
+				Name:  "os",
+				Usage: "Lists all the operating systems of a particular service",
 				Action: func(c *cli.Context) error {
 					prov, err := providers.GetNoAuth(c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					plans, err := prov.Plans()
+					os, err := prov.OS()
 					if err != nil {
 						return err
 					}
-					printer.PrintPlans(plans)
+					printer.PrintOS(os)
 
 					return nil
 				},
