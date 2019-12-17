@@ -130,8 +130,7 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println(os)
-					//printer.PrintOS(os)
+					printer.PrintOS(os)
 
 					return nil
 				},
