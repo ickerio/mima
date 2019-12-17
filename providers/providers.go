@@ -10,8 +10,8 @@ import (
 // Provider is the interface for the Vultr, DigitalOcean structs
 type Provider interface {
 	Info() (Server, error)
-	Start()
-	Stop()
+	Start() error
+	Stop() error
 	Plans() ([]Plan, error)
 	Regions() ([]Region, error)
 	OS() ([]OS, error)
@@ -19,6 +19,7 @@ type Provider interface {
 
 // Server details the information of a VPS server
 type Server struct {
+	ID               string
 	Name             string
 	Os               string
 	Memory           string

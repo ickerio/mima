@@ -3,7 +3,6 @@ package providers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -19,7 +18,7 @@ type Vultr struct {
 	os     int
 }
 
-// Info Retrieves all hosted VPS servers
+// Info Retrieves the desired VPS server information
 func (v Vultr) Info() (Server, error) {
 	var server Server
 
@@ -31,6 +30,7 @@ func (v Vultr) Info() (Server, error) {
 	for _, element := range servers {
 		if element.Label == v.name {
 			server = Server{
+				ID:               element.InstanceID,
 				Name:             element.Label,
 				Os:               element.Os,
 				Memory:           element.RAM,
@@ -51,24 +51,23 @@ func (v Vultr) Info() (Server, error) {
 }
 
 // Start the desired server
-func (v Vultr) Start() {
+func (v Vultr) Start() error {
 	vpsOptions := &govultr.ServerOptions{
 		Label: v.name,
 	}
 
-	// RegionId, VpsPlanID, OsID can be grabbed from their respective API calls
-	res, err := v.client.Server.Create(context.Background(), v.region, v.plan, v.os, vpsOptions)
+	_, err := v.client.Server.Create(context.Background(), v.region, v.plan, v.os, vpsOptions)
 
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(res)
-	}
+	return err
 }
 
 // Stop the desired server
-func (v Vultr) Stop() {
+func (v Vultr) Stop() error {
+	server, err := v.Info()
 
+	err = v.client.Server.Delete(context.Background(), server.ID)
+
+	return err
 }
 
 // Plans will grab all regions available from the provider

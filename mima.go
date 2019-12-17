@@ -66,7 +66,12 @@ func main() {
 						return err
 					}
 
-					prov.Start()
+					err = prov.Start()
+					if err != nil {
+						return err
+					}
+
+					fmt.Println("Success! VPS is starting now... please wait")
 
 					return nil
 				},
@@ -75,7 +80,22 @@ func main() {
 				Name:  "stop",
 				Usage: "Stop the given server if currently online",
 				Action: func(c *cli.Context) error {
-					fmt.Printf("end %q", c.Args().Get(0))
+					conf, err := util.GetConfig(c.String("config"))
+					if err != nil {
+						return err
+					}
+
+					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					err = prov.Stop()
+					if err != nil {
+						return err
+					}
+
+					fmt.Println("Success! VPS is shutting down")
 					return nil
 				},
 			},
