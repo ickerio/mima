@@ -72,7 +72,13 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println(prov.Plans())
+
+					regions, err := prov.Regions()
+					if err != nil {
+						return err
+					}
+					printer.PrintRegions(regions)
+
 					return nil
 				},
 			},
@@ -85,7 +91,13 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println(prov.Regions())
+
+					plans, err := prov.Plans()
+					if err != nil {
+						return err
+					}
+					printer.PrintPlans(plans)
+
 					return nil
 				},
 			},
