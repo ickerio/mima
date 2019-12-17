@@ -101,6 +101,18 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "test",
+				Aliases: []string{"test", "t"},
+				Usage:   "Test code",
+				Action: func(c *cli.Context) error {
+
+					//services.CopyFile("README.md", "./NEW.md", "45.77.234.221", "root", "n7]CcTqhv-sZ_u[9")
+					//services.SaveFile("/root/README.md", "saved.md", "45.77.234.221", "root", "n7]CcTqhv-sZ_u[9")
+
+					return nil
+				},
+			},
 		},
 	}
 
