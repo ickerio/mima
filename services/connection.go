@@ -1,6 +1,8 @@
 package services
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -13,6 +15,7 @@ import (
 
 type Connection struct {
 	SSHClient  *ssh.Client
+	SSHSession *ssh.Session
 	SFTPClient *sftp.Client
 }
 
@@ -41,15 +44,22 @@ func Connect(host string, username string, password string) (Connection, error) 
 	}
 	connection.SFTPClient = sftpClient
 
+	session, err := connection.SSHClient.NewSession()
+	if err != nil {
+		return connection, err
+	}
+	connection.SSHSession = session
+
 	return connection, nil
 }
 
 func (conn Connection) Close() {
 	conn.SFTPClient.Close()
+	conn.SSHSession.Close()
 	conn.SSHClient.Close()
 }
 
-func (conn Connection) CopyFile(srcPath string, destPath string) error {
+func (conn Connection) PutFile(srcPath string, destPath string) error {
 
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
@@ -71,7 +81,7 @@ func (conn Connection) CopyFile(srcPath string, destPath string) error {
 	return nil
 }
 
-func (conn Connection) SaveFile(srcPath string, destPath string) error {
+func (conn Connection) GetFile(srcPath string, destPath string) error {
 
 	srcFile, err := conn.SFTPClient.Open(srcPath)
 	if err != nil {
@@ -87,5 +97,16 @@ func (conn Connection) SaveFile(srcPath string, destPath string) error {
 
 	srcFile.WriteTo(destFile)
 
+	return nil
+}
+
+func (conn Connection) Execute(cmd string) error {
+	var buff bytes.Buffer
+	conn.SSHSession.Stdout = &buff
+	fmt.Print("$ " + cmd + "\n")
+	if err := conn.SSHSession.Run(cmd); err != nil {
+		return err
+	}
+	fmt.Print(buff.String())
 	return nil
 }

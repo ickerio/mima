@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ickerio/mima/services"
+
 	"github.com/ickerio/mima/printer"
 	"github.com/ickerio/mima/providers"
 	"github.com/ickerio/mima/util"
@@ -37,17 +39,18 @@ func main() {
 						return err
 					}
 
-					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					ser, err := prov.Info()
+					server, err := provider.Info()
 					if err != nil {
 						return err
 					}
 
-					printer.PrintInfo(ser)
+					printer.PrintInfo(server)
+					fmt.Printf("\nPassword: %v\n", server.Password)
 
 					return nil
 				},
@@ -61,12 +64,12 @@ func main() {
 						return err
 					}
 
-					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					err = prov.Start()
+					err = provider.Start()
 					if err != nil {
 						return err
 					}
@@ -85,12 +88,12 @@ func main() {
 						return err
 					}
 
-					prov, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					err = prov.Stop()
+					err = provider.Stop()
 					if err != nil {
 						return err
 					}
@@ -104,12 +107,12 @@ func main() {
 				Aliases: []string{"plan", "p"},
 				Usage:   "Lists all the plans of a particular service",
 				Action: func(c *cli.Context) error {
-					prov, err := providers.GetNoAuth(c.Args().Get(0))
+					provider, err := providers.GetNoAuth(c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					plans, err := prov.Plans()
+					plans, err := provider.Plans()
 					if err != nil {
 						return err
 					}
@@ -123,12 +126,12 @@ func main() {
 				Aliases: []string{"region", "r"},
 				Usage:   "Lists all the regions of a particular service",
 				Action: func(c *cli.Context) error {
-					prov, err := providers.GetNoAuth(c.Args().Get(0))
+					provider, err := providers.GetNoAuth(c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					regions, err := prov.Regions()
+					regions, err := provider.Regions()
 					if err != nil {
 						return err
 					}
@@ -141,16 +144,51 @@ func main() {
 				Name:  "os",
 				Usage: "Lists all the operating systems of a particular service",
 				Action: func(c *cli.Context) error {
-					prov, err := providers.GetNoAuth(c.Args().Get(0))
+					provider, err := providers.GetNoAuth(c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					os, err := prov.OS()
+					os, err := provider.OS()
 					if err != nil {
 						return err
 					}
 					printer.PrintOS(os)
+
+					return nil
+				},
+			},
+			{
+				Name:  "test",
+				Usage: "Test things!",
+				Action: func(c *cli.Context) error {
+					conf, err := util.GetConfig(c.String("config"))
+					if err != nil {
+						return err
+					}
+
+					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					fmt.Println("Saves directory: " + c.String("saves"))
+
+					server, err := provider.Info()
+					if err != nil {
+						return err
+					}
+
+					minecraft := services.Minecraft{
+						SavesDir: c.String("saves"),
+						Name:     server.Name,
+						Host:     server.IP,
+						Username: "root",
+						Password: server.Password}
+
+					if err := minecraft.Start(); err != nil {
+						return err
+					}
 
 					return nil
 				},
