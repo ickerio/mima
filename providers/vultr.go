@@ -70,6 +70,10 @@ func (v Vultr) Start() error {
 func (v Vultr) Stop() error {
 	server, err := v.Info()
 
+	if err != nil {
+		return errors.New("Server already offline")
+	}
+
 	err = v.client.Server.Delete(context.Background(), server.ID)
 
 	return err
