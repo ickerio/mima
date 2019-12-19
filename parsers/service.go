@@ -92,14 +92,14 @@ func GetService(fileName string, savesDir string, ip string, password string) (S
 		case "create", "start", "stop", "backup":
 			current = components[0]
 		case "exe":
-			command := Execute{data: components[1]}
+			command := Execute{data: strings.TrimLeft(components[1], "\t \n")}
 			addToService(current, command, &service)
 		case "get":
-			body := strings.Split(components[1], ",")
+			body := strings.Split(strings.TrimLeft(components[1], "\t \n"), ",")
 			command := GetFile{source: body[0], destination: body[1]}
 			addToService(current, command, &service)
 		case "put":
-			body := strings.Split(components[1], ",")
+			body := strings.Split(strings.TrimLeft(components[1], "\t \n"), ",")
 			command := PutFile{source: body[0], destination: body[1]}
 			addToService(current, command, &service)
 		}
