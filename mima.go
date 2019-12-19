@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ickerio/mima/services"
-
 	"github.com/ickerio/mima/parsers"
 	"github.com/ickerio/mima/printer"
 	"github.com/ickerio/mima/providers"
@@ -179,26 +177,16 @@ func main() {
 						return err
 					}
 
-					minecraft := services.Minecraft{
-						SavesDir: c.String("saves"),
-						Name:     server.Name,
-						Host:     server.IP,
-						Username: "root",
-						Password: server.Password}
+					service, err := parsers.GetService("example.service", c.String("saves"), server.IP, server.Password)
 
-					if err := minecraft.Start(); err != nil {
+					if err != nil {
 						return err
 					}
 
-					return nil
-				},
-			},
-			{
-				Name:  "test2",
-				Usage: "Test things!",
-				Action: func(c *cli.Context) error {
-					ser, _ := parsers.GetService("example.service")
-					fmt.Printf("%+v\n", ser)
+					if err := service.Start(); err != nil {
+						return err
+					}
+
 					return nil
 				},
 			},

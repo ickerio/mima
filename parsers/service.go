@@ -3,54 +3,85 @@ package parsers
 import (
 	"bufio"
 	"errors"
+	"github.com/ickerio/mima/services"
 	"os"
 	"strings"
 )
 
-type Command interface {
-	Run() error
-}
-
-type Execute struct {
-	data string
-}
-
-func (e Execute) Run() error {
-	return nil
-}
-
-type GetFile struct {
-	source      string
-	destination string
-}
-
-func (g GetFile) Run() error {
-	return nil
-}
-
-type PutFile struct {
-	source      string
-	destination string
-}
-
-func (p PutFile) Run() error {
-	return nil
-}
-
 type Service struct {
-	Create []Command
-	Start  []Command
-	Stop   []Command
-	Backup []Command
+	SavesDir string
+	Name     string
+	Host     string
+	Username string
+	Password string
+	Commands struct {
+		Create []Command
+		Start  []Command
+		Stop   []Command
+		Backup []Command
+	}
 }
 
-func GetService(fileName string) (Service, error) {
-	service := Service{}
+func (s Service) Create() error {
+	conn, _ := services.Connect(s.Host, s.Username, s.Password)
+
+	for _, element := range s.Commands.Create {
+		err := element.Run(conn)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s Service) Start() error {
+	conn, _ := services.Connect(s.Host, s.Username, s.Password)
+
+	for _, element := range s.Commands.Start {
+		err := element.Run(conn)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s Service) Stop() error {
+	conn, _ := services.Connect(s.Host, s.Username, s.Password)
+
+	for _, element := range s.Commands.Stop {
+		err := element.Run(conn)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s Service) Backup() error {
+	conn, _ := services.Connect(s.Host, s.Username, s.Password)
+
+	for _, element := range s.Commands.Backup {
+		err := element.Run(conn)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func GetService(fileName string, savesDir string, ip string, password string) (Service, error) {
+	service := Service{
+		SavesDir: savesDir,
+		Host:     ip,
+		Username: "root",
+		Password: password,
+	}
 	var current string
 
 	f, err := os.Open(fileName)
 	if err != nil {
-		return Service{}, errors.New("Could not find service file")
+		return service, errors.New("Could not find service file")
 	}
 
 	scanner := bufio.NewScanner(f)
@@ -77,15 +108,48 @@ func GetService(fileName string) (Service, error) {
 	return service, nil
 }
 
+type Command interface {
+	Run(services.Connection) error
+}
+
+type Execute struct {
+	data string
+}
+
+func (e Execute) Run(conn services.Connection) error {
+	conn.Execute(e.data)
+	return nil
+}
+
+type GetFile struct {
+	source      string
+	destination string
+}
+
+func (g GetFile) Run(conn services.Connection) error {
+	conn.GetFile(g.source, g.destination)
+	return nil
+}
+
+type PutFile struct {
+	source      string
+	destination string
+}
+
+func (p PutFile) Run(conn services.Connection) error {
+	conn.PutFile(p.source, p.destination)
+	return nil
+}
+
 func addToService(current string, command Command, service *Service) {
 	switch current {
 	case "create":
-		service.Create = append(service.Create, command)
+		service.Commands.Create = append(service.Commands.Create, command)
 	case "start":
-		service.Start = append(service.Start, command)
+		service.Commands.Start = append(service.Commands.Start, command)
 	case "stop":
-		service.Stop = append(service.Stop, command)
+		service.Commands.Stop = append(service.Commands.Stop, command)
 	case "backup":
-		service.Backup = append(service.Backup, command)
+		service.Commands.Backup = append(service.Commands.Backup, command)
 	}
 }
