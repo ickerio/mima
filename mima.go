@@ -8,7 +8,7 @@ import (
 
 	"github.com/ickerio/mima/printer"
 	"github.com/ickerio/mima/providers"
-	"github.com/ickerio/mima/util"
+	"github.com/ickerio/mima/parsers"
 	"github.com/urfave/cli/v2"
 )
 
@@ -34,7 +34,7 @@ func main() {
 				Aliases: []string{"i"},
 				Usage:   "Displays info on the server",
 				Action: func(c *cli.Context) error {
-					conf, err := util.GetConfig(c.String("config"))
+					conf, err := parsers.GetConfig(c.String("config"))
 					if err != nil {
 						return err
 					}
@@ -59,7 +59,7 @@ func main() {
 				Name:  "start",
 				Usage: "Starts the given server if not already online",
 				Action: func(c *cli.Context) error {
-					conf, err := util.GetConfig(c.String("config"))
+					conf, err := parsers.GetConfig(c.String("config"))
 					if err != nil {
 						return err
 					}
@@ -83,7 +83,7 @@ func main() {
 				Name:  "stop",
 				Usage: "Stop the given server if currently online",
 				Action: func(c *cli.Context) error {
-					conf, err := util.GetConfig(c.String("config"))
+					conf, err := parsers.GetConfig(c.String("config"))
 					if err != nil {
 						return err
 					}
@@ -162,7 +162,7 @@ func main() {
 				Name:  "test",
 				Usage: "Test things!",
 				Action: func(c *cli.Context) error {
-					conf, err := util.GetConfig(c.String("config"))
+					conf, err := parsers.GetConfig(c.String("config"))
 					if err != nil {
 						return err
 					}
