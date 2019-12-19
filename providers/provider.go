@@ -3,7 +3,7 @@ package providers
 import (
 	"errors"
 
-	"github.com/ickerio/mima/pasers"
+	"github.com/ickerio/mima/parsers"
 	"github.com/vultr/govultr"
 )
 

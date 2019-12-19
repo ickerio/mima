@@ -6,9 +6,9 @@ import (
 
 	"github.com/ickerio/mima/services"
 
+	"github.com/ickerio/mima/parsers"
 	"github.com/ickerio/mima/printer"
 	"github.com/ickerio/mima/providers"
-	"github.com/ickerio/mima/parsers"
 	"github.com/urfave/cli/v2"
 )
 
