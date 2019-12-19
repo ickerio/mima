@@ -193,6 +193,15 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "test2",
+				Usage: "Test things!",
+				Action: func(c *cli.Context) error {
+					ser, _ := parsers.GetService("example.service")
+					fmt.Printf("%+v\n", ser)
+					return nil
+				},
+			},
 		},
 	}
 
