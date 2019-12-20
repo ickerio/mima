@@ -59,41 +59,40 @@ func main() {
 				Name:  "start",
 				Usage: "Starts the given server if not already online",
 				Action: func(c *cli.Context) error {
+					// Get config...
 					conf, err := parsers.GetConfig(c.String("config"))
 					if err != nil {
 						return err
 					}
 
+					// Start the VPS...
 					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					err = provider.Start()
-					if err != nil {
-						return err
-					}
+					// err = provider.Start()
+					// if err != nil {
+					// 	return err
+					// }
 					fmt.Println("[MIMA] Success! VPS is starting now... please wait")
 
 					// Fetch server info...
 					var server providers.Server = providers.Server{}
-					fmt.Print("[MIMA] Fetching server info...")
-					for i := 0; i < 36; i++ {
+					fmt.Print("[MIMA] Waiting for VPS to initialize...")
+					for i := 0; i < 180; i++ {
 						time.Sleep(time.Second * 10)
 						ser, err := provider.Info()
 						if err != nil {
 							return err
 						}
 
-						fmt.Println(ser)
-						fmt.Println(ser.Password)
-
-						if ser != (providers.Server{}) && ser.Password != "not supported" {
+						if ser != (providers.Server{}) && ser.Password != "not supported" && ser.Ready {
 							server = ser
 							break
 						}
 
-						fmt.Printf("\r[MIMA] Fetching server info - %v tries...", i)
+						fmt.Printf("\r[MIMA] Waiting for VPS to initialize... (%v tries)", i)
 					}
 					fmt.Println()
 					// Ensure server is acquired.
@@ -101,15 +100,12 @@ func main() {
 						return errors.New("Unable to fetch server info.")
 					}
 
-					// Setup and start game server on VPS.
-					minecraft := services.Minecraft{
-						SavesDir: c.String("saves"),
-						Name:     server.Name,
-						Host:     server.IP,
-						Username: "root",
-						Password: server.Password}
+					service, err := parsers.GetService("minecraft.service", c.String("saves"), server.Name, server.IP, server.Password)
+					if err != nil {
+						return err
+					}
 
-					if err := minecraft.Start(); err != nil {
+					if err := service.Start(); err != nil {
 						return err
 					}
 					fmt.Println("[MIMA] Server starting... please wait")
@@ -132,8 +128,8 @@ func main() {
 					}
 
 					var server providers.Server = providers.Server{}
-					fmt.Print("[MIMA] Fetching server info...")
-					for i := 0; i < 36; i++ {
+					fmt.Print("[MIMA] Waiting for VPS to initialize...")
+					for i := 0; i < 180; i++ {
 						ser, err := provider.Info()
 						if err != nil {
 							return err
@@ -143,7 +139,7 @@ func main() {
 							break
 						}
 
-						fmt.Printf("\r[MIMA] Fetching server info - %v tries...", i)
+						fmt.Printf("\r[MIMA] Waiting for VPS to initialize... (%v tries)", i)
 						time.Sleep(time.Second * 10)
 					}
 					fmt.Println()
@@ -152,14 +148,12 @@ func main() {
 						return errors.New("Unable to fetch server info.")
 					}
 
-					minecraft := services.Minecraft{
-						SavesDir: c.String("saves"),
-						Name:     server.Name,
-						Host:     server.IP,
-						Username: "root",
-						Password: server.Password}
+					service, err := parsers.GetService("minecraft.service", c.String("saves"), server.Name, server.IP, server.Password)
+					if err != nil {
+						return err
+					}
 
-					if err := minecraft.Stop(); err != nil {
+					if err := service.Stop(); err != nil {
 						return err
 					}
 					fmt.Println("[MIMA] Game server shut down.")
@@ -233,63 +227,52 @@ func main() {
 				Name:  "create",
 				Usage: "Start the VPS, creating a new server.",
 				Action: func(c *cli.Context) error {
-					conf, err := util.GetConfig(c.String("config"))
-					if err != nil {
-						return err
-					}
-
-					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
-					if err != nil {
-						return err
-					}
-
-					// TODO: Start the VPS //
-
-					server, err := provider.Info()
-					if err != nil {
-						return err
-					}
-
-					minecraft := services.Minecraft{
-						SavesDir: c.String("saves"),
-						Name:     server.Name,
-						Host:     server.IP,
-						Username: "root",
-						Password: server.Password}
-
-					if err := minecraft.Create(); err != nil {
-						return err
-					}
-
-					return nil
-				},
-			},
-			{
-				Name:  "test",
-				Usage: "Test things!",
-				Action: func(c *cli.Context) error {
 					conf, err := parsers.GetConfig(c.String("config"))
 					if err != nil {
 						return err
 					}
 
+					// Start the VPS...
 					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
 					if err != nil {
 						return err
 					}
 
-					server, err := provider.Info()
+					err = provider.Start()
+					if err != nil {
+						return err
+					}
+					fmt.Println("[MIMA] Success! VPS is starting now... please wait")
+
+					// Fetch server info...
+					var server providers.Server = providers.Server{}
+					fmt.Print("[MIMA] Fetching server info...")
+					for i := 0; i < 36; i++ {
+						time.Sleep(time.Second * 10)
+						ser, err := provider.Info()
+						if err != nil {
+							return err
+						}
+
+						if ser != (providers.Server{}) && ser.Password != "not supported" && ser.Ready {
+							server = ser
+							break
+						}
+
+						fmt.Printf("\r[MIMA] Fetching server info - %v tries...", i)
+					}
+					fmt.Println()
+					// Ensure server is acquired.
+					if (providers.Server{}) == server {
+						return errors.New("Unable to fetch server info.")
+					}
+
+					service, err := parsers.GetService("minecraft.service", c.String("saves"), server.Name, server.IP, server.Password)
 					if err != nil {
 						return err
 					}
 
-					service, err := parsers.GetService("example.service", c.String("saves"), server.IP, server.Password)
-
-					if err != nil {
-						return err
-					}
-
-					if err := service.Start(); err != nil {
+					if err := service.Create(); err != nil {
 						return err
 					}
 

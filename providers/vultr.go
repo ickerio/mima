@@ -30,7 +30,7 @@ func (v Vultr) Info() (Server, error) {
 	for _, element := range servers {
 		if element.Label == v.name {
 			ready := false
-			if element.Status == "ok" {
+			if element.ServerState == "ok" {
 				ready = true
 			}
 			server = Server{
