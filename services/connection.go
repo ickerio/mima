@@ -2,10 +2,12 @@ package services
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 
@@ -15,7 +17,6 @@ import (
 
 type Connection struct {
 	SSHClient  *ssh.Client
-	SSHSession *ssh.Session
 	SFTPClient *sftp.Client
 }
 
@@ -32,11 +33,21 @@ func Connect(host string, username string, password string) (Connection, error) 
 		return connection, err
 	}
 
-	sshClient, err := ssh.Dial("tcp", host, &clientConfig)
-	if err != nil {
-		return connection, err
+	fmt.Printf("[MIMA] Dialing VPS...")
+	for i := 0; i < 36; i++ {
+		sshClient, err := ssh.Dial("tcp", host, &clientConfig)
+		if err == nil {
+			connection.SSHClient = sshClient
+			break
+		}
+		fmt.Printf("\r[MIMA] Dialing VPS - %v tries...", i+1)
+		time.Sleep(time.Second * 10)
 	}
-	connection.SSHClient = sshClient
+	fmt.Println()
+
+	if connection.SSHClient == nil {
+		return connection, errors.New("Failed to establish SSH connection to VPS.")
+	}
 
 	sftpClient, err := sftp.NewClient(connection.SSHClient)
 	if err != nil {
@@ -44,18 +55,12 @@ func Connect(host string, username string, password string) (Connection, error) 
 	}
 	connection.SFTPClient = sftpClient
 
-	session, err := connection.SSHClient.NewSession()
-	if err != nil {
-		return connection, err
-	}
-	connection.SSHSession = session
-
 	return connection, nil
 }
 
 func (conn Connection) Close() {
 	conn.SFTPClient.Close()
-	conn.SSHSession.Close()
+
 	conn.SSHClient.Close()
 }
 
@@ -95,18 +100,27 @@ func (conn Connection) GetFile(srcPath string, destPath string) error {
 	}
 	defer destFile.Close()
 
-	srcFile.WriteTo(destFile)
+	_, err = srcFile.WriteTo(destFile)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func (conn Connection) Execute(cmd string) error {
-	var buff bytes.Buffer
-	conn.SSHSession.Stdout = &buff
-	fmt.Print("$ " + cmd + "\n")
-	if err := conn.SSHSession.Run(cmd); err != nil {
+	session, err := conn.SSHClient.NewSession()
+	if err != nil {
 		return err
 	}
-	fmt.Print(buff.String())
+	defer session.Close()
+
+	var buff bytes.Buffer
+	session.Stdout = &buff
+	fmt.Print("[MIMA] Executing $ " + cmd + "\n")
+	if err := session.Run(cmd); err != nil {
+		return errors.New(err.Error() + "\n" + buff.String())
+	}
+
 	return nil
 }

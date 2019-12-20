@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ickerio/mima/services"
 
@@ -73,8 +75,46 @@ func main() {
 					if err != nil {
 						return err
 					}
+					fmt.Println("[MIMA] Success! VPS is starting now... please wait")
 
-					fmt.Println("Success! VPS is starting now... please wait")
+					// Fetch server info...
+					var server providers.Server = providers.Server{}
+					fmt.Print("[MIMA] Fetching server info...")
+					for i := 0; i < 36; i++ {
+						time.Sleep(time.Second * 10)
+						ser, err := provider.Info()
+						if err != nil {
+							return err
+						}
+
+						fmt.Println(ser)
+						fmt.Println(ser.Password)
+
+						if ser != (providers.Server{}) && ser.Password != "not supported" {
+							server = ser
+							break
+						}
+
+						fmt.Printf("\r[MIMA] Fetching server info - %v tries...", i)
+					}
+					fmt.Println()
+					// Ensure server is acquired.
+					if (providers.Server{}) == server {
+						return errors.New("Unable to fetch server info.")
+					}
+
+					// Setup and start game server on VPS.
+					minecraft := services.Minecraft{
+						SavesDir: c.String("saves"),
+						Name:     server.Name,
+						Host:     server.IP,
+						Username: "root",
+						Password: server.Password}
+
+					if err := minecraft.Start(); err != nil {
+						return err
+					}
+					fmt.Println("[MIMA] Server starting... please wait")
 
 					return nil
 				},
@@ -93,12 +133,45 @@ func main() {
 						return err
 					}
 
+					var server providers.Server = providers.Server{}
+					fmt.Print("[MIMA] Fetching server info...")
+					for i := 0; i < 36; i++ {
+						ser, err := provider.Info()
+						if err != nil {
+							return err
+						}
+						if ser != (providers.Server{}) {
+							server = ser
+							break
+						}
+
+						fmt.Printf("\r[MIMA] Fetching server info - %v tries...", i)
+						time.Sleep(time.Second * 10)
+					}
+					fmt.Println()
+
+					if (providers.Server{}) == server {
+						return errors.New("Unable to fetch server info.")
+					}
+
+					minecraft := services.Minecraft{
+						SavesDir: c.String("saves"),
+						Name:     server.Name,
+						Host:     server.IP,
+						Username: "root",
+						Password: server.Password}
+
+					if err := minecraft.Stop(); err != nil {
+						return err
+					}
+					fmt.Println("[MIMA] Game server shut down.")
+
 					err = provider.Stop()
 					if err != nil {
 						return err
 					}
+					fmt.Println("[MIMA] Success! VPS is shutting down.")
 
-					fmt.Println("Success! VPS is shutting down")
 					return nil
 				},
 			},
@@ -159,6 +232,41 @@ func main() {
 				},
 			},
 			{
+				Name:  "create",
+				Usage: "Start the VPS, creating a new server.",
+				Action: func(c *cli.Context) error {
+					conf, err := util.GetConfig(c.String("config"))
+					if err != nil {
+						return err
+					}
+
+					provider, err := providers.GetFromConfig(conf, c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					// TODO: Start the VPS //
+
+					server, err := provider.Info()
+					if err != nil {
+						return err
+					}
+
+					minecraft := services.Minecraft{
+						SavesDir: c.String("saves"),
+						Name:     server.Name,
+						Host:     server.IP,
+						Username: "root",
+						Password: server.Password}
+
+					if err := minecraft.Create(); err != nil {
+						return err
+					}
+
+					return nil
+				},
+			},
+			{
 				Name:  "test",
 				Usage: "Test things!",
 				Action: func(c *cli.Context) error {
@@ -171,8 +279,6 @@ func main() {
 					if err != nil {
 						return err
 					}
-
-					fmt.Println("Saves directory: " + c.String("saves"))
 
 					server, err := provider.Info()
 					if err != nil {
@@ -198,6 +304,6 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("[MIMA ERROR] " + err.Error())
 	}
 }
