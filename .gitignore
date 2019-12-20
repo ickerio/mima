@@ -1,3 +1,5 @@
 mima.exe
 .mima.yml
 saves/
+example.service
+.ssh/

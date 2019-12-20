@@ -3,7 +3,7 @@ package providers
 import (
 	"errors"
 
-	"github.com/ickerio/mima/util"
+	"github.com/ickerio/mima/parsers"
 	"github.com/vultr/govultr"
 )
 
@@ -68,7 +68,7 @@ func GetNoAuth(service string) (Provider, error) {
 }
 
 // GetFromConfig returns a provider from the config and user input
-func GetFromConfig(conf util.Config, name string) (Provider, error) {
+func GetFromConfig(conf parsers.Config, name string) (Provider, error) {
 	for i := range conf.Servers {
 		if conf.Servers[i].Name == name {
 			switch conf.Servers[i].Provider {

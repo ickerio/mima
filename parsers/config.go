@@ -1,4 +1,4 @@
-package util
+package parsers
 
 import (
 	"errors"
@@ -28,7 +28,7 @@ func GetConfig(fileName string) (Config, error) {
 
 	f, err := os.Open(fileName)
 	if err != nil {
-		return cfg, errors.New("Could not find config file")
+		return Config{}, errors.New("Could not find config file")
 	}
 
 	decoder := yaml.NewDecoder(f)
