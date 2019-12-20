@@ -29,9 +29,14 @@ func (v Vultr) Info() (Server, error) {
 
 	for _, element := range servers {
 		if element.Label == v.name {
+			ready := false
+			if element.Status == "ok" {
+				ready = true
+			}
 			server = Server{
 				ID:               element.InstanceID,
 				Name:             element.Label,
+				Ready:            ready,
 				Os:               element.Os,
 				Memory:           element.RAM,
 				Storage:          element.Disk,

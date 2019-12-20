@@ -21,6 +21,7 @@ type Provider interface {
 type Server struct {
 	ID               string
 	Name             string
+	Ready            bool
 	Os               string
 	Memory           string
 	Storage          string
