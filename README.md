@@ -1,9 +1,15 @@
-# mima
-**mi**cro **ma**nager for games (and services) on your VPS
+<p align="center">
+    <a href="#"><img src="https://user-images.githubusercontent.com/14541442/71244003-868b8a80-234c-11ea-88bb-e23bd147a8f5.png"></a>
+</p>
 
-mima is a small command line interface tool that sits on your personal computer and allows you to rapidly start and stop game servers and other services when not in use to save money. We found that we'd only ever play on our community minecraft server for several hours of the week, despite this we'd be paying (per hour) for the whole week. Configuring, logging in, transfering data to and reinstalling programs on the server on every restart seemed infeasible if we'd want to cut back on these unnecessary 161 hosting hours. mima aims to provide a lightweight, easily configurable and quick solution to this problem. We calculated it would bring our server cost down from $20/month to merely $0.84/month.
+<p align="center">
+mima is a small command line interface tool that sits on your personal computer and allows<br>you to rapidly start and stop game servers and other services when not in use to save money.
+</p>
 
-> At current release mima only supports Vultr and defaults to a minecraft server service. We intend to expand on this in the future.
+###### [mima docs](https://github.com/ickerio/mima/wiki) | [premade services](https://github.com/ickerio/wiki/services) | [issues](https://github.com/ickerio/mima/issues)
+
+#### Why?
+We found that we'd only ever play on our community minecraft server for several hours of the week, despite this we'd be paying (per hour) for the whole week. Configuring, logging in, transfering data to and reinstalling programs on the server on every restart seemed infeasible if we'd want to cut back on these unnecessary 161 hosting hours. mima aims to provide a lightweight, easily configurable and quick solution to this problem. We calculated it would bring our server cost down from $20/month to merely $0.84/month.
 
 ## Installation
 See [releases](https://github.com/ickerio/mima/releases) to download the most recent version of the mima CLI executable for your system
