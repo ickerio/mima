@@ -71,10 +71,10 @@ func main() {
 						return err
 					}
 
-					// err = provider.Start()
-					// if err != nil {
-					// 	return err
-					// }
+					err = provider.Start()
+					if err != nil {
+						return err
+					}
 					fmt.Println("[MIMA] Success! VPS is starting now... please wait")
 
 					// Fetch server info...

@@ -126,9 +126,8 @@ func GetService(fileName string, savesDir string, name string, ip string, passwo
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		components := strings.Split(strings.TrimLeft(scanner.Text(), "\t \n"), ":")
-
 		switch components[0] {
-		case "create", "start", "stop", "backup":
+		case "install_tools", "create_executable", "start_executable", "stop_executable":
 			current = components[0]
 		case "exe":
 			command := Execute{data: strings.TrimLeft(components[1], "\t \n")}
@@ -183,12 +182,16 @@ func (p PutFile) Run(conn *services.Connection) error {
 func addToService(current string, command Command, service *Service) {
 	switch current {
 	case "install_tools":
+		fmt.Println("adding install_tools")
 		service.Commands.InstallTools = append(service.Commands.InstallTools, command)
 	case "create_executable":
+		fmt.Println("adding create_executable")
 		service.Commands.CreateExecutable = append(service.Commands.CreateExecutable, command)
 	case "start_executable":
+		fmt.Println("adding start_executable")
 		service.Commands.StartExecutable = append(service.Commands.StartExecutable, command)
 	case "stop_executable":
+		fmt.Println("adding stop_executable")
 		service.Commands.StopExecutable = append(service.Commands.StopExecutable, command)
 	}
 }
